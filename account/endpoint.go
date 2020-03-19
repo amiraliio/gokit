@@ -9,6 +9,8 @@ import (
 type Endpoints struct {
 	CreateUser endpoint.Endpoint
 	GetUser    endpoint.Endpoint
+	_          struct{}  //prevent to use struct without key
+	_          [0]func() //prevent to compare struct
 }
 
 func MakeEndpoints(s Service) *Endpoints {

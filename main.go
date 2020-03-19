@@ -33,10 +33,12 @@ func main() {
 	}()
 
 	go func() {
-		c := make(chan os.Signal)
+		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGINT)
 		err <- fmt.Errorf("%s", <-c)
 	}()
 
-	logger.Log(<-err)
+	if err := logger.Log(<-err); err != nil {
+		fmt.Println(err)
+	}
 }

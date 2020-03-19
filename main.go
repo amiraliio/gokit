@@ -3,42 +3,28 @@ package main
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
 
+	"github.com/amiraliio/gokit/todo"
 	"github.com/go-kit/kit/log"
-
-	"github.com/amiraliio/gokit/account"
+	"github.com/go-kit/kit/log/level"
+	_ "github.com/lib/pq"
 )
 
 func main() {
-
 	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 
-	repository := account.NewRepository(&sql.DB{}, logger)
-
-	service := account.NewService(repository, logger)
-
-	endpoints := account.MakeEndpoints(service)
-
-	account.NewHTTPServer(context.Background(), endpoints)
-
-	err := make(chan error, 2)
-
-	go func() {
-		err <- http.ListenAndServe(":8765", nil)
-	}()
-
-	go func() {
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, syscall.SIGINT)
-		err <- fmt.Errorf("%s", <-c)
-	}()
-
-	if err := logger.Log(<-err); err != nil {
-		fmt.Println(err)
+	db, err := sql.Open("postgres", "user=postgres dbname=gokitTodo sslmode=verify-full")
+	if err != nil {
+		level.Error(logger).Log("DB", err.Error())
+		return
 	}
+	repository := todo.NewRepository(db, logger)
+
+	service := todo.NewService(repository, logger)
+
+	endpoint := todo.NewEndpoint(service)
+
+	todo.NewTransport(context.Background(), endpoint)
+
 }

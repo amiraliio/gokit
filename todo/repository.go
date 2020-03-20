@@ -1,9 +1,10 @@
 package todo
 
 import (
-	"time"
 	"context"
 	"database/sql"
+	"fmt"
+	"time"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -23,7 +24,7 @@ func NewRepository(db *sql.DB, logger log.Logger) Repository {
 }
 
 func (r *repository) List(ctx context.Context) ([]*TODO, error) {
-	cursor, err := r.db.Query("select id, title, text, createdAt from todo")
+	cursor, err := r.db.Query("select title, text from todo")
 	if err != nil {
 		level.Error(r.logger).Log("Repository", "Todo", "PostgreSQL", "List", err.Error())
 		return nil, err
@@ -32,7 +33,8 @@ func (r *repository) List(ctx context.Context) ([]*TODO, error) {
 	var list []*TODO
 	for cursor.Next() {
 		var todo *TODO
-		if err := cursor.Scan(&todo.ID, &todo.Title, &todo.Text, &todo.Create_at); err != nil {
+		if err := cursor.Scan(&todo.Title, &todo.Text); err != nil {
+			fmt.Println(err)
 			level.Error(r.logger).Log("Repository", "Todo", "PostgreSQL", "List", err.Error())
 			return nil, err
 		}
@@ -43,8 +45,7 @@ func (r *repository) List(ctx context.Context) ([]*TODO, error) {
 }
 
 func (r *repository) Insert(ctx context.Context, title, text string) error {
-time := time.Now()
-	_, err := r.db.Exec("insert into todo(id, title, text, created_at) values($1, $2, $3, $4)", uuid.New(), title, text, time)
+	_, err := r.db.Exec("insert into todo(id, title, text, created_at) values($1, $2, $3, $4)", uuid.New(), title, text, time.Now())
 	if err != nil {
 		level.Error(r.logger).Log("Repository", "Todo", "PostgreSQL", "Insert", err.Error())
 		return err

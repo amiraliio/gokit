@@ -7,8 +7,6 @@ import (
 )
 
 type TODO struct {
-	_         struct{}
-	_         [0]func()
 	ID        uuid.UUID `json:"id"`
 	Title     string    `json:"title"`
 	Text      string    `json:"text"`

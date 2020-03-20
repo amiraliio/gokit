@@ -20,6 +20,7 @@ func main() {
 		level.Error(logger).Log("DB", err.Error())
 		os.Exit(1)
 	}
+	defer db.Close()
 	repository := todo.NewRepository(db, logger)
 
 	service := todo.NewService(repository, logger)

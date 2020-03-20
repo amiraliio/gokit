@@ -12,17 +12,18 @@ import (
 func NewTransport(ctx context.Context, endpoints *Endpoints) http.Handler {
 
 	router := mux.NewRouter()
+	router.Use(commonMiddleware)
 
 	router.Methods("GET").Path("/todo").Handler(httptransport.NewServer(
-		endpoints.Insert,
-		insertRequest,
-		insertResponse,
-	))
-
-	router.Methods("POST").Path("/todo").Handler(httptransport.NewServer(
 		endpoints.List,
 		listRequest,
 		listResponse,
+	))
+
+	router.Methods("POST").Path("/todo").Handler(httptransport.NewServer(
+		endpoints.Insert,
+		insertRequest,
+		insertResponse,
 	))
 
 	return router
@@ -46,4 +47,11 @@ func listRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 
 func listResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	return json.NewEncoder(w).Encode(response)
+}
+
+func commonMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "application/json")
+		next.ServeHTTP(w, r)
+	})
 }

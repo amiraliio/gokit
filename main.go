@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"net/http"
 	"os"
 
 	"github.com/amiraliio/gokit/todo"
@@ -25,6 +26,10 @@ func main() {
 
 	endpoint := todo.NewEndpoint(service)
 
-	todo.NewTransport(context.Background(), endpoint)
+	transport := todo.NewTransport(context.Background(), endpoint)
+
+	if err := http.ListenAndServe(":8976", transport); err != nil {
+		level.Error(logger).Log(err.Error)
+	}
 
 }

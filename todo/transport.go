@@ -3,28 +3,29 @@ package todo
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"github.com/gorilla/mux"
 	"net/http"
 
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
-func NewTransport(_ context.Context, endpoints *Endpoints) {
+func NewTransport(_ context.Context, endpoints *Endpoints) *mux.Router {
 
-	http.Handle("/todo", httptransport.NewServer(
+	router := mux.NewRouter()
+
+	router.Methods("GET").Path("/todo").Handler(httptransport.NewServer(
 		endpoints.Insert,
 		insertRequest,
 		insertResponse,
 	))
 
-	http.Handle("/Todo", httptransport.NewServer(
+	router.Methods("POST").Path("/todo").Handler(httptransport.NewServer(
 		endpoints.List,
 		listRequest,
 		listResponse,
 	))
 
-	log.Fatal(http.ListenAndServe(":8976", nil))
-
+	return router
 }
 
 func insertRequest(_ context.Context, request *http.Request) (interface{}, error) {

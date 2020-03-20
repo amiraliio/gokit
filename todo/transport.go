@@ -9,7 +9,7 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
-func NewTransport(_ context.Context, endpoints *Endpoints) *mux.Router {
+func NewTransport(ctx context.Context, endpoints *Endpoints) http.Handler {
 
 	router := mux.NewRouter()
 
@@ -28,7 +28,7 @@ func NewTransport(_ context.Context, endpoints *Endpoints) *mux.Router {
 	return router
 }
 
-func insertRequest(_ context.Context, request *http.Request) (interface{}, error) {
+func insertRequest(ctx context.Context, request *http.Request) (interface{}, error) {
 	var createTodoRequest CreateTodoRequest
 	if err := json.NewDecoder(request.Body).Decode(&createTodoRequest); err != nil {
 		return nil, err
@@ -36,18 +36,14 @@ func insertRequest(_ context.Context, request *http.Request) (interface{}, error
 	return createTodoRequest, nil
 }
 
-func insertResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+func insertResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	return json.NewEncoder(w).Encode(response)
 }
 
-func listRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var listRequest ListTodoRequest
-	if err := json.NewDecoder(r.Body).Decode(&listRequest); err != nil {
-		return nil, err
-	}
-	return listRequest, nil
+func listRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	return nil, nil
 }
 
-func listResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+func listResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	return json.NewEncoder(w).Encode(response)
 }

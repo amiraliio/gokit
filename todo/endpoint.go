@@ -20,10 +20,11 @@ func NewEndpoint(service Service) *Endpoints {
 
 type (
 	CreateTodoRequest struct {
-		Title, Text string
+		Title string `json:"title"`
+		Text  string `json:"text"`
 	}
 	CreateTodoResponse struct {
-		Success bool
+		Success bool `json:"success"`
 	}
 )
 
@@ -40,8 +41,8 @@ func Insert(service Service) endpoint.Endpoint {
 type (
 	ListTodoRequest  struct{}
 	ListTodoResponse struct {
-		Success bool
-		Data    []*TODO
+		Success bool    `json:"success"`
+		Data    []*TODO `json:"data"`
 	}
 )
 

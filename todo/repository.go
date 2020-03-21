@@ -29,7 +29,7 @@ func NewRepository(db *sql.DB, logger log.Logger) Repository {
 
 func (r *repository) List(ctx context.Context) ([]*TODO, error) {
 	defer r.db.Close()
-	cursor, err := r.db.Query("select title, text from todo")
+	cursor, err := r.db.Query("select id, title, text, created_at from todo")
 	if err != nil {
 		level.Error(r.logger).Log("Repository", "Todo", "PostgreSQL", "List", err.Error())
 		return nil, err
@@ -38,7 +38,7 @@ func (r *repository) List(ctx context.Context) ([]*TODO, error) {
 	var list []*TODO
 	for cursor.Next() {
 		todo := new(TODO)
-		if err := cursor.Scan(&todo.Title, &todo.Text); err != nil {
+		if err := cursor.Scan(&todo.ID, &todo.Title, &todo.Text, &todo.Create_at); err != nil {
 			level.Error(r.logger).Log("Repository", "Todo", "PostgreSQL", "List", err.Error())
 			return nil, err
 		}

@@ -2,26 +2,32 @@ package main
 
 import (
 	"context"
-	"database/sql"
+	"log"
 	"net/http"
 	"os"
 
+	"github.com/amiraliio/gokit/config"
 	"github.com/amiraliio/gokit/todo"
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
-	_ "github.com/lib/pq"
 )
 
 func main() {
-	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 
-	db, err := sql.Open("postgres", "user=postgres dbname=gokitTodo sslmode=disable")
+	root, err := os.Getwd()
 	if err != nil {
-		level.Error(logger).Log("DB", err.Error())
-		os.Exit(1)
+		log.Fatalln(err)
 	}
-	defer db.Close()
-	repository := todo.NewRepository(db, logger)
+
+	sys := config.InitConfig(root)
+
+	env := sys.Config()
+
+	logger := sys.Logger()
+
+	if env.GetBool("APP.DEBUG.ENABLED") {
+		sys.Profiler(env.GetString("APP.DEBUG.PORt"))
+	}
+
+	repository := todo.NewRepository(sys.DB(), logger)
 
 	service := todo.NewService(repository, logger)
 
@@ -29,9 +35,8 @@ func main() {
 
 	transport := todo.NewTransport(context.Background(), endpoint)
 
-	if err := http.ListenAndServe(":8976", transport); err != nil {
-		level.Error(logger).Log(err.Error)
-		os.Exit(1)
+	if err := http.ListenAndServe(":"+env.GetString("APP.PORT"), transport); err != nil {
+		log.Fatalln(err)
 	}
 
 }

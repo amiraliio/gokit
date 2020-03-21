@@ -24,6 +24,7 @@ func NewRepository(db *sql.DB, logger log.Logger) Repository {
 }
 
 func (r *repository) List(ctx context.Context) ([]*TODO, error) {
+	defer r.db.Close()
 	cursor, err := r.db.Query("select title, text from todo")
 	if err != nil {
 		level.Error(r.logger).Log("Repository", "Todo", "PostgreSQL", "List", err.Error())
@@ -45,6 +46,7 @@ func (r *repository) List(ctx context.Context) ([]*TODO, error) {
 }
 
 func (r *repository) Insert(ctx context.Context, title, text string) error {
+	defer r.db.Close()
 	_, err := r.db.Exec("insert into todo(id, title, text, created_at) values($1, $2, $3, $4)", uuid.New(), title, text, time.Now())
 	if err != nil {
 		level.Error(r.logger).Log("Repository", "Todo", "PostgreSQL", "Insert", err.Error())

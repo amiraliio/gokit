@@ -1,0 +1,5 @@
+APP:
+  PORT: 9876
+  DEBUG:
+    ENABLED: true
+    PORT: 1234

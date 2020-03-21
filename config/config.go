@@ -54,14 +54,16 @@ func (c *config) Logger() log.Logger {
 func (c *config) Profiler(debugPort string) {
 	go func() {
 		debugR := mux.NewRouter()
-		debugR.HandleFunc("/debug/pprof/", pprof.Index)
+		debugR.HandleFunc("/debug/pprof", pprof.Index)
 		debugR.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
-		debugR.HandleFunc("/debug/pprof/profile", pprof.Profile)
+		debugR.HandleFunc("/debug/pprof/profile", pprof.Profile) //cpu profile
 		debugR.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
-		debugR.Handle("/debug/pprof/heap", pprof.Handler("heap"))
-		debugR.Handle("/debug/pprof/goroutine", pprof.Handler("goroutine"))
-		debugR.Handle("/debug/pprof/block", pprof.Handler("block"))
-		debugR.Handle("/debug/pprof/threadcreate", pprof.Handler("threadcreate"))
+		debugR.HandleFunc("/debug/pprof/trace", pprof.Trace)        //execution trace - go tool trace
+		debugR.Handle("/debug/pprof/mutex", pprof.Handler("mutex")) //holders of contended mutexes
+		debugR.Handle("/debug/pprof/heap", pprof.Handler("heap"))   //a sampling of all heap allocations
+		debugR.Handle("/debug/pprof/goroutine", pprof.Handler("goroutine")) //stack traces of all current goroutines
+		debugR.Handle("/debug/pprof/block", pprof.Handler("block")) //stack traces that led to blocking on synchronization primitives
+		debugR.Handle("/debug/pprof/threadcreate", pprof.Handler("threadcreate")) //stack traces that led to the creation of new OS threads
 		if err := http.ListenAndServe(":"+debugPort, debugR); err != nil {
 			syslog.Fatalln(err)
 		}

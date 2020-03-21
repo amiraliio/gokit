@@ -8,6 +8,7 @@ import (
 
 	"github.com/amiraliio/gokit/config"
 	"github.com/amiraliio/gokit/todo"
+	_ "net/http/pprof"
 )
 
 func main() {

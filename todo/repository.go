@@ -3,13 +3,17 @@ package todo
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/google/uuid"
 )
+
+type Repository interface {
+	List(ctx context.Context) ([]*TODO, error)
+	Insert(ctx context.Context, title, text string) error
+}
 
 type repository struct {
 	db     *sql.DB
@@ -33,9 +37,8 @@ func (r *repository) List(ctx context.Context) ([]*TODO, error) {
 	defer cursor.Close()
 	var list []*TODO
 	for cursor.Next() {
-		var todo *TODO
+		todo := new(TODO)
 		if err := cursor.Scan(&todo.Title, &todo.Text); err != nil {
-			fmt.Println(err)
 			level.Error(r.logger).Log("Repository", "Todo", "PostgreSQL", "List", err.Error())
 			return nil, err
 		}

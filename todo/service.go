@@ -11,10 +11,6 @@ type Service interface {
 	Insert(ctx context.Context, title, text string) error
 }
 
-type Repository interface {
-	List(ctx context.Context) ([]*TODO, error)
-	Insert(ctx context.Context, title, text string) error
-}
 
 type service struct {
 	repository Repository

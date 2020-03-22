@@ -28,7 +28,7 @@ func main() {
 		sys.Profiler(env.GetString("APP.DEBUG.PORt"))
 	}
 
-	repository := todo.NewRepository(sys.DB(), logger)
+	repository := todo.NewMysqlRepository(sys.DB(), logger)
 
 	service := todo.NewService(repository, logger)
 

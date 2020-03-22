@@ -10,17 +10,13 @@ import (
 	"github.com/google/uuid"
 )
 
-type Repository interface {
-	List(ctx context.Context) ([]*TODO, error)
-	Insert(ctx context.Context, title, text string) error
-}
 
 type repository struct {
 	db     *sql.DB
 	logger log.Logger
 }
 
-func NewRepository(db *sql.DB, logger log.Logger) Repository {
+func NewMysqlRepository(db *sql.DB, logger log.Logger) Repository {
 	return &repository{
 		db:     db,
 		logger: log.With(logger, "Repository", "Todo", "PostgreSQL"),

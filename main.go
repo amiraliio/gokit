@@ -8,7 +8,6 @@ import (
 
 	"github.com/amiraliio/gokit/config"
 	"github.com/amiraliio/gokit/todo"
-	_ "net/http/pprof"
 )
 
 func main() {
@@ -24,13 +23,20 @@ func main() {
 
 	logger := sys.Logger()
 
+	db := sys.DB()
+	defer db.Close()
+
 	if env.GetBool("APP.DEBUG.ENABLED") {
 		sys.Profiler(env.GetString("APP.DEBUG.PORt"))
 	}
 
-	repository := todo.NewMysqlRepository(sys.DB(), logger)
+	repository := todo.NewMysqlRepository(db)
 
-	service := todo.NewService(repository, logger)
+	var service todo.Service
+
+	service = todo.NewService(repository)
+
+	service = todo.NewLoggerService(logger, service)
 
 	endpoint := todo.NewEndpoint(service)
 

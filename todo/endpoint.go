@@ -29,9 +29,9 @@ type (
 )
 
 func Insert(service Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+	return func(_ context.Context, request interface{}) (response interface{}, err error) {
 		requestModel := request.(CreateTodoRequest)
-		err = service.Insert(ctx, requestModel.Title, requestModel.Text)
+		err = service.Insert(requestModel.Title, requestModel.Text)
 		responseModel := new(CreateTodoResponse)
 		responseModel.Success = true
 		return responseModel, err
@@ -47,8 +47,8 @@ type (
 )
 
 func List(service Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		data, err := service.List(ctx)
+	return func(_ context.Context, request interface{}) (response interface{}, err error) {
+		data, err := service.List()
 		listTodoResponseModel := new(ListTodoResponse)
 		listTodoResponseModel.Success = true
 		listTodoResponseModel.Data = data

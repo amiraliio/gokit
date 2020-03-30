@@ -1,1 +1,3 @@
 # gokit example
+
+metrics: Prometheus

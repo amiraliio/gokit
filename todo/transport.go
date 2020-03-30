@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func NewTransport(_ context.Context, endpoints *Endpoints) http.Handler {
@@ -25,6 +26,9 @@ func NewTransport(_ context.Context, endpoints *Endpoints) http.Handler {
 		insertRequest,
 		insertResponse,
 	))
+
+	router.Methods("GET").Path("/metrics").Handler(promhttp.Handler())
+
 
 	return router
 }

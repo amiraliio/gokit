@@ -2,9 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/amiraliio/gokit/config"
 	"github.com/amiraliio/gokit/todo"
@@ -68,8 +71,19 @@ func main() {
 
 	transport := todo.NewTransport(context.Background(), endpoint)
 
-	if err := http.ListenAndServe(":"+env.GetString("APP.PORT"), transport); err != nil {
-		log.Fatalln(err)
-	}
+	errChannel := make(chan error, 2)
+
+	go func(handler http.Handler) {
+		fmt.Println("Listening on port " + env.GetString("APP.PORT") + "...")
+		errChannel <- http.ListenAndServe(":"+env.GetString("APP.PORT"), handler)
+	}(transport)
+
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, syscall.SIGINT)
+		errChannel <- fmt.Errorf("%s", <-c)
+	}()
+
+	fmt.Println(<-errChannel)
 
 }

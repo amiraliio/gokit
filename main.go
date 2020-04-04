@@ -16,8 +16,7 @@ import (
 )
 
 func main() {
-
-	// rate limiting
+// rate limiting
 	// metrics
 	// load balancing
 	// analytics
@@ -85,5 +84,4 @@ func main() {
 	}()
 
 	fmt.Println(<-errChannel)
-
 }
